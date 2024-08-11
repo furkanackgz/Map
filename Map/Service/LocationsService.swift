@@ -10,34 +10,42 @@ import MapKit
 
 class LocationsService: ObservableObject {
     
-    private(set) var locations: [Location]
-    private(set) var currentLocation: Location?
-    
-    init() {
-        locations = LocationsDataService.locations
-        defer {
-            currentLocation = locations.first
-        }
+    func getAllLocations() -> [Location] {
+        LocationsDataService.locations
     }
-}
-
-// MARK: Methods
-extension LocationsService {
-    func getCurrentLocationName() -> String {
-        if let currentLocation {
-            return "\(currentLocation.name), \(currentLocation.cityName)"
+    
+    func getInitialRegion(from locations: [Location]) -> MKCoordinateRegion {
+        .init(center: locations.first?.coordinates ?? .init(latitude: 41.8902, longitude: 12.4922),
+              span: .init(latitudeDelta: 0.1, longitudeDelta: 0.1))
+    }
+    
+    func getName(from location: Location?) -> String {
+        if let location {
+            return "\(location.name), \(location.cityName)"
         } else {
             return ""
         }
     }
     
-    func getInitialRegion() -> MKCoordinateRegion {
-        .init(center: currentLocation?.coordinates ?? .init(latitude: 41.8902, longitude: 12.4922),
-              span: .init(latitudeDelta: 0.1, longitudeDelta: 0.1))
+    func getRegion(from location: Location) -> MKCoordinateRegion {
+        return MKCoordinateRegion(center: location.coordinates, span: .init(latitudeDelta: 0.1, longitudeDelta: 0.1))
     }
     
-    func getRegion(from location: Location) -> MKCoordinateRegion {
-        currentLocation = location
-        return MKCoordinateRegion(center: location.coordinates, span: .init(latitudeDelta: 0.1, longitudeDelta: 0.1))
+    func getNextRegion(from location: Location, and locations: [Location]) -> MKCoordinateRegion {
+        guard let currentLocationIndex = locations.firstIndex(of: location) else {
+            return getRegion(from: location)
+        }
+        let nextLocationIndex = currentLocationIndex + 1
+        guard locations.indices.contains(nextLocationIndex) else {
+            return getRegion(from: locations.first ?? location)
+        }
+        return getRegion(from: locations[nextLocationIndex])
+    }
+    
+    func getNextLocation(from location: Location, and locations: [Location]) -> Location {
+        guard let currentLocationIndex = locations.firstIndex(of: location) else { return location }
+        let nextLocationIndex = currentLocationIndex + 1
+        guard locations.indices.contains(nextLocationIndex) else { return locations.first ?? location }
+        return locations[nextLocationIndex]
     }
 }

@@ -11,7 +11,9 @@ import MapKit
 struct LocationsView: View {
     
     @State private var showLocationsHeaderList: Bool = false
+    @State private var locations = [Location]()
     @State private var position: MapCameraPosition = .automatic
+    @State private var currentLocation: Location?
     
     @EnvironmentObject var locationsService: LocationsService
     
@@ -23,10 +25,21 @@ struct LocationsView: View {
             VStack {
                 header
                 Spacer()
+                
+                ForEach(locations) { location in
+                    if let currentLocation = Binding($currentLocation),
+                       currentLocation.wrappedValue == location {
+                        LocationsInfoView(locations: $locations,
+                                          position: $position,
+                                          currentLocation: currentLocation)
+                    }
+                }
             }
         }
         .task {
-            position = .region(locationsService.getInitialRegion())
+            locations = locationsService.getAllLocations()
+            position = .region(locationsService.getInitialRegion(from: locations))
+            currentLocation = locations.first
         }
     }
 }
@@ -36,9 +49,12 @@ private extension LocationsView {
     var header: some View {
         VStack {
             headerTitle
-            if showLocationsHeaderList {
-                LocationsHeaderList(showLocationsHeaderList: $showLocationsHeaderList,
-                                    position: $position)
+            if showLocationsHeaderList,
+               let currentLocation = Binding($currentLocation){
+                LocationsHeaderList(locations: $locations,
+                                    showLocationsHeaderList: $showLocationsHeaderList,
+                                    position: $position,
+                                    currentLocation: currentLocation)
             }
         }
         .background(.thickMaterial)
@@ -54,13 +70,13 @@ private extension LocationsView {
                 showLocationsHeaderList.toggle()
             }
         }, label: {
-            Text("\(locationsService.getCurrentLocationName())")
+            Text("\(locationsService.getName(from: currentLocation))")
                 .foregroundStyle(Color.primary)
                 .font(.title2)
                 .fontWeight(.black)
                 .frame(height: 55)
                 .frame(maxWidth: .infinity)
-                .animation(.none, value: locationsService.currentLocation)
+                .animation(.none, value: currentLocation)
                 .overlay(alignment: .leading, content: {
                     Image(systemName: "arrow.down")
                         .font(.headline)

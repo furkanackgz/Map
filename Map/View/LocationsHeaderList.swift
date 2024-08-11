@@ -12,12 +12,14 @@ struct LocationsHeaderList: View {
     
     @EnvironmentObject var locationsService: LocationsService
     
+    @Binding var locations: [Location]
     @Binding var showLocationsHeaderList: Bool
     @Binding var position: MapCameraPosition
+    @Binding var currentLocation: Location
     
     var body: some View {
         List {
-            ForEach(locationsService.locations) { location in
+            ForEach(locations) { location in
                 listRow(location)
                     .listRowBackground(Color.clear)
             }
@@ -32,6 +34,7 @@ private extension LocationsHeaderList {
         Button(action: {
             withAnimation(.easeInOut) {
                 position = .region(locationsService.getRegion(from: location))
+                currentLocation = location
             }
             showLocationsHeaderList.toggle()
         }, label: {
@@ -54,7 +57,9 @@ private extension LocationsHeaderList {
 }
 
 #Preview {
-    LocationsHeaderList(showLocationsHeaderList: .constant(false),
-                        position: .constant(.automatic))
+    LocationsHeaderList(locations: .constant([Location]()),
+                        showLocationsHeaderList: .constant(false),
+                        position: .constant(.automatic),
+                        currentLocation: .constant(LocationsDataService.locations.first!))
         .environmentObject(LocationsService())
 }
