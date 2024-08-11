@@ -10,15 +10,8 @@ import MapKit
 
 class LocationsService: ObservableObject {
     
-    private var locations: [Location]
-    private var currentLocation: Location? {
-        didSet {
-            if let currentLocation {
-                setCurrentRegion(to: currentLocation)
-            }
-        }
-    }
-    @Published var currentRegion: MKCoordinateRegion = .init()
+    private(set) var locations: [Location]
+    private(set) var currentLocation: Location?
     
     init() {
         locations = LocationsDataService.locations
@@ -28,10 +21,23 @@ class LocationsService: ObservableObject {
     }
 }
 
-private extension LocationsService {
-    func setCurrentRegion(to location: Location) {
-        currentRegion = .init(center: location.coordinates,
-                              span: .init(latitudeDelta: 0.1,
-                                          longitudeDelta: 0.1))
+// MARK: Methods
+extension LocationsService {
+    func getCurrentLocationName() -> String {
+        if let currentLocation {
+            return "\(currentLocation.name), \(currentLocation.cityName)"
+        } else {
+            return ""
+        }
+    }
+    
+    func getInitialRegion() -> MKCoordinateRegion {
+        .init(center: currentLocation?.coordinates ?? .init(latitude: 41.8902, longitude: 12.4922),
+              span: .init(latitudeDelta: 0.1, longitudeDelta: 0.1))
+    }
+    
+    func getRegion(from location: Location) -> MKCoordinateRegion {
+        currentLocation = location
+        return MKCoordinateRegion(center: location.coordinates, span: .init(latitudeDelta: 0.1, longitudeDelta: 0.1))
     }
 }
