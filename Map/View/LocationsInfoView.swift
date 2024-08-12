@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import MapKit
+import MapKit.MKMapCamera
 
 struct LocationsInfoView: View {
     

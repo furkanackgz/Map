@@ -19,8 +19,12 @@ struct LocationsView: View {
     
     var body: some View {
         ZStack {
-            Map(position: $position)
-                .ignoresSafeArea()
+            Map(position: $position, interactionModes: .all, content: {
+                ForEach(locations) { location in
+                    annotation(for: location)
+                }
+            })
+            .ignoresSafeArea()
             
             VStack {
                 header
@@ -85,6 +89,18 @@ private extension LocationsView {
                         .rotationEffect(showLocationsHeaderList ? .degrees(180) : .zero)
                 })
         })
+    }
+    
+    func annotation(for location: Location) -> Annotation<some View, some View> {
+        Annotation(location.name, coordinate: location.coordinates) {
+            if let currentLocation = Binding($currentLocation) {
+                LocationsAnnotationView(position: $position,
+                                        currentLocation: currentLocation,
+                                        location: location)
+                .scaleEffect(location == currentLocation.wrappedValue ? 1 : 0.7)
+                .zIndex(location == currentLocation.wrappedValue ? 1 : 0)
+            }
+        }
     }
 }
 

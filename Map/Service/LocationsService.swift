@@ -10,13 +10,15 @@ import MapKit
 
 class LocationsService: ObservableObject {
     
+    private let spanDelta = 0.05
+    
     func getAllLocations() -> [Location] {
         LocationsDataService.locations
     }
     
     func getInitialRegion(from locations: [Location]) -> MKCoordinateRegion {
         .init(center: locations.first?.coordinates ?? .init(latitude: 41.8902, longitude: 12.4922),
-              span: .init(latitudeDelta: 0.1, longitudeDelta: 0.1))
+              span: .init(latitudeDelta: spanDelta, longitudeDelta: spanDelta))
     }
     
     func getName(from location: Location?) -> String {
@@ -28,7 +30,8 @@ class LocationsService: ObservableObject {
     }
     
     func getRegion(from location: Location) -> MKCoordinateRegion {
-        return MKCoordinateRegion(center: location.coordinates, span: .init(latitudeDelta: 0.1, longitudeDelta: 0.1))
+        return MKCoordinateRegion(center: location.coordinates, span: .init(latitudeDelta: spanDelta,
+                                                                            longitudeDelta: spanDelta))
     }
     
     func getNextRegion(from location: Location, and locations: [Location]) -> MKCoordinateRegion {
