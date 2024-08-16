@@ -19,25 +19,12 @@ struct LocationsView: View {
     
     var body: some View {
         ZStack {
-            Map(position: $position, interactionModes: .all, content: {
-                ForEach(locations) { location in
-                    annotation(for: location)
-                }
-            })
-            .ignoresSafeArea()
+            mapView
             
             VStack {
                 header
                 Spacer()
-                
-                ForEach(locations) { location in
-                    if let currentLocation = Binding($currentLocation),
-                       currentLocation.wrappedValue == location {
-                        LocationsInfoView(locations: $locations,
-                                          position: $position,
-                                          currentLocation: currentLocation)
-                    }
-                }
+                locationInfoView
             }
         }
         .task {
@@ -50,6 +37,15 @@ struct LocationsView: View {
 
 // MARK: Components
 private extension LocationsView {
+    var mapView: some View {
+        Map(position: $position, interactionModes: .all, content: {
+            ForEach(locations) { location in
+                annotation(for: location)
+            }
+        })
+        .ignoresSafeArea()
+    }
+    
     var header: some View {
         VStack {
             headerTitle
@@ -99,6 +95,17 @@ private extension LocationsView {
                                         location: location)
                 .scaleEffect(location == currentLocation.wrappedValue ? 1 : 0.7)
                 .zIndex(location == currentLocation.wrappedValue ? 1 : 0)
+            }
+        }
+    }
+    
+    var locationInfoView: some View {
+        ForEach(locations) { location in
+            if let currentLocation = Binding($currentLocation),
+               currentLocation.wrappedValue == location {
+                LocationsInfoView(locations: $locations,
+                                  position: $position,
+                                  currentLocation: currentLocation)
             }
         }
     }
