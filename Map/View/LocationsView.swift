@@ -14,6 +14,7 @@ struct LocationsView: View {
     @State private var locations = [Location]()
     @State private var position: MapCameraPosition = .automatic
     @State private var currentLocation: Location?
+    @State private var presentSheet: Bool = false
     
     @EnvironmentObject var locationsService: LocationsService
     
@@ -27,6 +28,12 @@ struct LocationsView: View {
                 locationInfoView
             }
         }
+        .sheet(isPresented: $presentSheet, content: {
+            if let currentLocation {
+                LocationsDetailView(presentSheet: $presentSheet,
+                                    location: currentLocation)
+            }
+        })
         .task {
             locations = locationsService.getAllLocations()
             position = .region(locationsService.getInitialRegion(from: locations))
@@ -105,7 +112,8 @@ private extension LocationsView {
                currentLocation.wrappedValue == location {
                 LocationsInfoView(locations: $locations,
                                   position: $position,
-                                  currentLocation: currentLocation)
+                                  currentLocation: currentLocation,
+                                  presentSheet: $presentSheet)
             }
         }
     }

@@ -14,6 +14,7 @@ struct LocationsInfoView: View {
     @Binding var locations: [Location]
     @Binding var position: MapCameraPosition
     @Binding var currentLocation: Location
+    @Binding var presentSheet: Bool
     
     var body: some View {
         HStack(alignment: .bottom, spacing: 0) {
@@ -70,7 +71,7 @@ private extension LocationsInfoView {
     
     var learnMoreButton: some View {
         Button(action: {
-            
+            presentSheet = true
         }, label: {
             Text("Learn More")
                 .frame(width: 125, height: 30)
@@ -98,5 +99,6 @@ private extension LocationsInfoView {
 #Preview {
     LocationsInfoView(locations: .constant([Location]()),
                       position: .constant(.automatic),
-                      currentLocation: .constant(LocationsDataService.locations.first!))
+                      currentLocation: .constant(LocationsDataService.locations.first!),
+                      presentSheet: .constant(false))
 }
