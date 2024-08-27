@@ -15,6 +15,7 @@ struct LocationsView: View {
     @State private var position: MapCameraPosition = .automatic
     @State private var currentLocation: Location?
     @State private var presentSheet: Bool = false
+    let maxWidthForIpad: CGFloat = 700
     
     @EnvironmentObject var locationsService: LocationsService
     
@@ -64,6 +65,7 @@ private extension LocationsView {
                                     currentLocation: currentLocation)
             }
         }
+        .frame(maxWidth: maxWidthForIpad)
         .background(.thickMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .shadow(color: .black.opacity(0.3), radius: 20)
@@ -116,6 +118,8 @@ private extension LocationsView {
                                   presentSheet: $presentSheet)
             }
         }
+        .frame(maxWidth: maxWidthForIpad)
+        .frame(maxWidth: .infinity)
     }
 }
 

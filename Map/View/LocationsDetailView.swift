@@ -14,40 +14,44 @@ struct LocationsDetailView: View {
     var location: Location
     
     var body: some View {
-        ScrollView {
-            VStack {
-                imageSection
-                
-                VStack(spacing: 16) {
-                    titleSection
-                    Divider()
-                    descriptionSection
-                    Divider()
-                    mapSection
+        GeometryReader { geometry in
+            ScrollView {
+                VStack {
+                    imageSection(geometry)
+                    
+                    VStack(spacing: 16) {
+                        titleSection
+                        Divider()
+                        descriptionSection
+                        Divider()
+                        mapSection
+                    }
+                    .padding()
                 }
-                .padding()
             }
             .overlay(alignment: .topLeading) {
                 closeButton
             }
+            .scrollBounceBehavior(.basedOnSize)
+            .ignoresSafeArea()
         }
-        .scrollBounceBehavior(.basedOnSize)
-        .ignoresSafeArea()
     }
 }
 
 // MARK: Components
 private extension LocationsDetailView {
-    var imageSection: some View {
+    func imageSection(_ geometry: GeometryProxy) -> some View {
         TabView {
             ForEach(location.imageNames, id: \.self) {
                 Image($0)
+                    .resizable()
                     .aspectRatio(1, contentMode: .fit)
+                    .frame(width: geometry.size.width)
                     .clipped()
             }
         }
         .tabViewStyle(PageTabViewStyle())
-        .frame(height: 500)
+        .frame(height: geometry.size.width)
         .shadow(color: .black.opacity(0.3),
                 radius: 20, x: 0, y: 10)
     }
@@ -94,13 +98,12 @@ private extension LocationsDetailView {
         }, label: {
             Image(systemName: "xmark")
                 .frame(width: 50, height: 50)
-                .background(
-                    Color(uiColor: .systemBackground)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                )
-                .padding()
+                .background(.thickMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .padding(24)
                 .font(.title3)
                 .foregroundStyle(Color.primary)
+                .shadow(radius: 4)
         })
     }
 }
